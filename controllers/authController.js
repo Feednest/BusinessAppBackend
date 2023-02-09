@@ -35,13 +35,59 @@ const createSendToken = (user, statusCode, req, res) => {
   });
 };
 
-exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
+// social login/signup method that is common for both google and facebook endpoints
+const socialAuth = catchAsync(async (req, res, email, role, password) => {
+  const user = await User.findOne({ email });
+
+  // if client is already registered with the google account we will directly log them in and send an access token to the client
+  if (user) {
+    return createSendToken(user, 200, req, res);
+  }
+
+  // if client is not registered with the google account we will register them
+  const newUser = new User({
+    email,
+    role,
   });
+
+  await user.save({ validateBeforeSave: false });
+
+  res
+    .status(200)
+    .json({ status: 'success', message: 'user registered successfully' });
+});
+
+//method to login/singup user using google their google account
+exports.googleLogin = catchAsync(async (req, res) => {
+  const { credentials, role, password } = req.body;
+
+  const email = jwt_decode(credentials).email;
+
+  socialAuth(req, res, email, role, password);
+});
+
+exports.signup = catchAsync(async (req, res, next) => {
+  const { name, email, password, passwordConfirm, role } = req.body;
+
+  // 1) Check if email and password exist
+  if (!name || !email || !password || !passwordConfirm) {
+    return next(new AppError('Please provide All required Fields!', 400));
+  }
+
+  //Check if User already exists
+  const user = await User.findOne({ email: req?.body?.email });
+
+  if (user) return next(new AppError('User Already Exists', 501));
+
+  const newUser = new User({
+    username: name,
+    email: email,
+    password: password,
+    passwordConfirm: passwordConfirm,
+    role: role,
+  });
+
+  await newUser.save({ validateBeforeSave: false });
 
   const url = `${req.protocol}://${req.get('host')}/me`;
   // await new Email(newUser, url).sendWelcome();
