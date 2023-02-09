@@ -4,9 +4,16 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  name: {
+  username: {
     type: String,
     required: [true, 'Please tell us your name!'],
+  },
+  businessName: {
+    type: String,
+    required: [true, 'Please tell us about your Business!'],
+  },
+  phoneNumber: {
+    type: String,
   },
   email: {
     type: String,
@@ -40,6 +47,14 @@ const userSchema = new mongoose.Schema({
       },
       message: 'Passwords are not the same!',
     },
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  phoneNoVerified: {
+    type: Boolean,
+    default: false,
   },
   passwordChangedAt: Date,
   passwordResetToken: String,
@@ -98,7 +113,7 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 };
 
 userSchema.methods.createPasswordResetToken = function () {
-  const resetToken = crypto.randomBytes(32).toString('hex');
+  const resetToken = crypto.randomBytes(4).toString('hex');
 
   this.passwordResetToken = crypto
     .createHash('sha256')
