@@ -12,8 +12,10 @@ const signToken = (id) => {
   });
 };
 
-const createSendToken = (user, statusCode, req, res) => {
-  const token = signToken(user._id);
+const createSendToken = (user, statusCode, req, res, msg) => {
+  msg ? msg : (msg = '');
+
+  const token = signToken(user?._id);
 
   res.cookie('jwt', token, {
     expires: new Date(
@@ -27,7 +29,7 @@ const createSendToken = (user, statusCode, req, res) => {
   user.password = undefined;
 
   res.status(statusCode).json({
-    status: 'success',
+    status: 'success' + msg,
     token,
     data: {
       user,
@@ -36,11 +38,18 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 
 // social login/signup method that is common for both google and facebook endpoints
-const socialAuth = catchAsync(async (req, res, email, role, password) => {
+// const socialAuth = catchAsync(async (req, res, email, role) => {
+
+// });
+
+//method to login/singup user using google their google account
+exports.socialLogin = catchAsync(async (req, res) => {
+  const { email, role } = req.body;
+
   const user = await User.findOne({ email });
 
   // if client is already registered with the google account we will directly log them in and send an access token to the client
-  if (user) {
+  if (user != null) {
     return createSendToken(user, 200, req, res);
   }
 
@@ -50,20 +59,9 @@ const socialAuth = catchAsync(async (req, res, email, role, password) => {
     role,
   });
 
-  await user.save({ validateBeforeSave: false });
+  await newUser.save({ validateBeforeSave: false });
 
-  res
-    .status(200)
-    .json({ status: 'success', message: 'user registered successfully' });
-});
-
-//method to login/singup user using google their google account
-exports.googleLogin = catchAsync(async (req, res) => {
-  const { credentials, role, password } = req.body;
-
-  const email = jwt_decode(credentials).email;
-
-  socialAuth(req, res, email, role, password);
+  createSendToken(newUser, 200, req, res, ' in Registering as New User');
 });
 
 exports.signup = catchAsync(async (req, res, next) => {
@@ -98,15 +96,26 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
+  console.log(email, password);
+
   // 1) Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));
   }
+
   // 2) Check if user exists && password is correct
   const user = await User.findOne({ email }).select('+password');
 
+  if (user == null) {
+    return next(new AppError('No Such User Exist', 400));
+  }
+
+  if (user?.password == undefined) {
+    return createSendToken(user, 200, req, res);
+  }
+
   if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new AppError('Incorrect email or password', 401));
+    return next(new AppError('Incorrect password', 401));
   }
 
   // 3) If everything ok, send token to client
