@@ -12,8 +12,9 @@ const factory = require('./handlerFactory');
 //   filename: (req, file, cb) => {
 //     const ext = file.mimetype.split('/')[1];
 //     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
-//   }
+//   },
 // });
+
 const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, cb) => {
@@ -70,8 +71,10 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   }
 
   // 2) Filtered out unwanted fields names that are not allowed to be updated
-  const filteredBody = filterObj(req.body, 'name', 'email');
-  if (req.file) filteredBody.photo = req.file.filename;
+  const filteredBody = filterObj(req.body, 'username', 'email', 'businessName');
+  if (req.file) {
+    filteredBody.photo = req.file.filename;
+  }
 
   // 3) Update user document
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {

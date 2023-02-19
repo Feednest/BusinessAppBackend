@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema({
   },
   businessName: {
     type: String,
-    required: [true, 'Please tell us about your Business!'],
   },
   phoneNumber: {
     type: String,
