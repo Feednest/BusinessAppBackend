@@ -88,7 +88,8 @@ exports.signup = catchAsync(async (req, res, next) => {
   await newUser.save({ validateBeforeSave: false });
 
   const url = `${req.protocol}://${req.get('host')}/me`;
-  // await new Email(newUser, url).sendWelcome();
+
+  // await new Email(user, url,'').sendWelcome();
 
   createSendToken(newUser, 201, req, res);
 });
@@ -254,8 +255,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.renderResetPassword = catchAsync(async (req, res, next) => {
-  // res.status(200).render('email/reset.pug', { token: req.params.token });
-
   const hashedToken = crypto
     .createHash('sha256')
     .update(req.params.token)
@@ -276,11 +275,74 @@ exports.renderResetPassword = catchAsync(async (req, res, next) => {
     .render('email/reset.pug');
 });
 
-// exports.renderPug = catchAsync(async (req, res, next) => {
-//   // res.status(200).render('email/reset.pug', { token: req.params.token });
+exports.renderPug = catchAsync(async (req, res, next) => {
+  // res.status(200).render('email/reset.pug', { token: req.params.token });
 
-//   res.render('email/passwordReset.pug', { token: req.params.token });
-// });
+  res.render('email/verifyOTP', {
+    token: req.params.token,
+    firstName: 'Mohammad Haris',
+  });
+});
+
+exports.verifyOTP = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(new AppError('There is no user with email address.', 404));
+  }
+
+  // 2) Generate the random reset token
+  const token = user.createOTP();
+
+  await user.save({ validateBeforeSave: false });
+
+  // 3) Send it to user's email
+  try {
+    await new Email(user, ' ', token).sendVerifyOTP();
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Token sent to email!',
+    });
+  } catch (err) {
+    user.OTP = undefined;
+    user.OTPExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return next(
+      new AppError('There was an error sending the email. Try again later!'),
+      500
+    );
+  }
+});
+
+exports.checkVerifyOTP = catchAsync(async (req, res, next) => {
+  // 1) Get user based on the token
+
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.body.token)
+    .digest('hex');
+
+  const user = await User.findOne({
+    OTP: hashedToken,
+    OTPExpires: { $gt: Date.now() },
+  });
+
+  //If no user found then return error
+  if (!user) {
+    return next(new AppError('Token is invalid or has expired', 400));
+  }
+
+  user.emailVerified = true;
+  user.OTP = undefined;
+  user.OTPExpires = undefined;
+
+  await user.save({ validateBeforeSave: false });
+
+  // 3) Update changedPasswordAt property for the user
+  // 4) Log the user in, send JWT
+  createSendToken(user, 200, req, res);
+});
 
 exports.resetPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on the token
@@ -289,11 +351,13 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     .createHash('sha256')
     .update(req.params.token)
     .digest('hex');
+
   const user = await User.findOne({
     passwordResetToken: hashedToken,
     passwordResetExpires: { $gt: Date.now() },
   });
-  // 2) If token has not expired, and there is user, set the new password
+
+  //If no user found then return error
   if (!user) {
     return next(new AppError('Token is invalid or has expired', 400));
   }

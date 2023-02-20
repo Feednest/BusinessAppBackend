@@ -3,10 +3,11 @@ const pug = require('pug');
 const { convert } = require('html-to-text');
 
 module.exports = class Email {
-  constructor(user, url) {
+  constructor(user, url, token) {
     this.to = user.email;
-    this.firstName = user.businessName;
+    this.firstName = user.businessName ? user.businessName : user.username;
     this.url = url;
+    this.token = token;
     this.from = `Feednest <${process.env.EMAIL_FROM}>`;
   }
 
@@ -57,6 +58,11 @@ module.exports = class Email {
 
   async sendWelcome() {
     await this.send('welcome', 'Welcome to the Feednest Family!');
+  }
+
+  async sendVerifyOTP() {
+    console.log(this);
+    // await this.send('verifyOTP', 'Verify your One Time Password');
   }
 
   async sendPasswordReset() {

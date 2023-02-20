@@ -11,11 +11,17 @@ router.get('/logout', authController.logout);
 
 router.post('/forgotPassword', authController.forgotPassword);
 
-router.post('/resetPassword/:token', authController.resetPassword);
+router
+  .route('/resetPassword/:token')
+  .post(authController.resetPassword)
+  .get(authController.renderResetPassword);
 
-router.get('/resetPassword/:token', authController.renderResetPassword);
+router
+  .route('/verifyOTP')
+  .get(authController.verifyOTP)
+  .post(authController.checkVerifyOTP);
 
-// router.get('/renderPug/:token', authController.renderPug);
+router.get('/renderPug/:token', authController.renderPug);
 
 // Protect all routes after this middleware
 router.use(authController.protect);
