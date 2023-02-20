@@ -5,7 +5,7 @@ const { convert } = require('html-to-text');
 module.exports = class Email {
   constructor(user, url) {
     this.to = user.email;
-    this.firstName = user.name.split(' ')[0];
+    this.firstName = user.businessName;
     this.url = url;
     this.from = `Feednest <${process.env.EMAIL_FROM}>`;
   }
@@ -38,6 +38,7 @@ module.exports = class Email {
     const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
       firstName: this.firstName,
       url: this.url,
+      token: this.token,
       subject,
     });
 

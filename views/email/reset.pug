@@ -1,0 +1,85 @@
+extends baseEmail
+
+block content
+  table.body(role='presentation', border='0', cellpadding='0', cellspacing='0')
+    tbody
+      tr
+        td
+        td.container(style='max-width: 600px; margin: 0 auto;')
+          .content(style='background-color: #f9f9f9; border-radius: 3px;')
+            // START CENTERED WHITE CONTAINER
+            table.main(role='presentation', style='width: 100%; background-color: #ffffff; border-radius: 3px;')
+              tbody
+                tr
+                  td.wrapper(style='padding: 20px;')
+                    table(role='presentation', border='0', cellpadding='0', cellspacing='0')
+                      tbody
+                        tr
+                          td
+                            // CONTENT
+                            h1(style='font-size: 24px; margin-bottom: 30px; text-align: center;') Reset Password
+
+                            if message
+                              p.message(style='color: #6f6f6f; font-size: 16px; line-height: 24px; margin-bottom: 20px;')= message
+
+                            form(method='POST')
+                              div(style='margin-bottom: 20px;')
+                                label(for='password', style='display: block; font-size: 16px; margin-bottom: 5px;') New Password:
+                                input(id='password', name='password', style='width: 100%; padding: 10px; border-radius: 3px; border: 1px solid #e6e6e6;', required)
+
+                              div(style='margin-bottom: 20px;')
+                                label(for='passwordConfirm', style='display: block; font-size: 16px; margin-bottom: 5px;') Confirm New Password:
+                                input(id='passwordConfirm', name='passwordConfirm', style='width: 100%; padding: 10px; border-radius: 3px; border: 1px solid #e6e6e6;', required)
+
+                              div
+                                if error
+                                  p.error(style='color: #f44336; font-size: 14px; margin-bottom: 10px;')= error
+
+                              div(style='text-align: center;')
+                                button(type='submit', style='background-color: #4CAF50; color: white; font-size: 16px; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer;') Reset Password
+
+                                script.
+                                  const form = document.querySelector('form');
+                                  const password = document.querySelector('#password');
+                                  const passwordConfirm = document.querySelector('#passwordConfirm');
+                                  const submitButton = document.querySelector('button[type="submit"]');
+
+                                  var re = /^(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9]).{8,}$/;
+
+                                  form.addEventListener('submit', event => {
+                                    event.preventDefault();
+
+                                    if (password.value === passwordConfirm.value) {
+                                      if (!re.test(password.value)) {
+                                        alert('Password must be at least 8 characters long, contain at least one uppercase letter, one number, and one special character.');
+                                        return;
+                                      }
+                                      else{
+                                      
+                                      const data = { password: password.value, passwordConfirm: passwordConfirm.value};
+                                      
+                                      fetch(event.target.action,{
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(data)
+                                      })
+                                      .then(response => {
+                                        console.log(response)
+                                        if (response.status === 200) {
+                                          alert('Password reset successful!');
+                                          window.close();
+                                        } else {
+                                          alert('Something went wrong.');
+                                          window.close();
+                                        }
+                                      })
+                                      .catch(error => {
+                                        console.error('There was a problem with the fetch operation:', error);
+                                      });
+                                      }
+                                    } 
+                                    else {
+                                      alert('Passwords do not match.');
+                                      return;
+                                    }
+                                  });
