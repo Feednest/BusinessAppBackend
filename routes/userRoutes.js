@@ -16,10 +16,9 @@ router
   .post(authController.resetPassword)
   .get(authController.renderResetPassword);
 
-router
-  .route('/verifyOTP')
-  .get(authController.verifyOTP)
-  .post(authController.checkVerifyOTP);
+router.route('/verifyOTP').post(authController.verifyOTP);
+
+router.route('/checkVerifyOTP').post(authController.checkVerifyOTP);
 
 router.get('/renderPug/:token', authController.renderPug);
 

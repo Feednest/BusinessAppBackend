@@ -8,12 +8,13 @@ module.exports = class Email {
     this.firstName = user.businessName ? user.businessName : user.username;
     this.url = url;
     this.token = token;
-    this.from = `Feednest <${process.env.EMAIL_FROM}>`;
+    this.from = `${process.env.EMAIL_FROM}`;
   }
 
   newTransport() {
     if (process.env.NODE_ENV === 'production') {
       // Sendgrid
+
       return nodemailer.createTransport({
         service: 'SendGrid',
         auth: {
@@ -61,8 +62,7 @@ module.exports = class Email {
   }
 
   async sendVerifyOTP() {
-    console.log(this);
-    // await this.send('verifyOTP', 'Verify your One Time Password');
+    await this.send('verifyOTP', 'Verify your One Time Password');
   }
 
   async sendPasswordReset() {

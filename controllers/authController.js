@@ -5,6 +5,9 @@ const User = require('../models/User');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const Email = require('../utils/email');
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = require('twilio')(accountSid, authToken);
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -61,6 +64,10 @@ exports.socialLogin = catchAsync(async (req, res) => {
 
   await newUser.save({ validateBeforeSave: false });
 
+  const url = `${req.protocol}://${req.get('host')}/me`;
+
+  // await new Email(newUser, url, '').sendWelcome();
+
   createSendToken(newUser, 200, req, res, ' in Registering as New User');
 });
 
@@ -89,7 +96,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   const url = `${req.protocol}://${req.get('host')}/me`;
 
-  // await new Email(user, url,'').sendWelcome();
+  // await new Email(newUser, url, '').sendWelcome();
 
   createSendToken(newUser, 201, req, res);
 });
@@ -285,10 +292,18 @@ exports.renderPug = catchAsync(async (req, res, next) => {
 });
 
 exports.verifyOTP = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
+  const user = await User.findOne({ email: req?.body?.email });
   if (!user) {
-    return next(new AppError('There is no user with email address.', 404));
+    return next(new AppError('No such User Found', 404));
   }
+
+  if (!req?.body?.type)
+    return next(
+      new AppError(
+        'Please Define Type for Verification as Either Phone or Email',
+        404
+      )
+    );
 
   // 2) Generate the random reset token
   const token = user.createOTP();
@@ -297,11 +312,21 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
 
   // 3) Send it to user's email
   try {
-    await new Email(user, ' ', token).sendVerifyOTP();
+    if (req?.body?.type === 'email') {
+      await new Email(user, ' ', token).sendVerifyOTP();
+    } else {
+      // const phone = await client.messages.create({
+      //   body: `Hi from Haris as a Test Server!Your OTP token is ${token}`,
+      //   from: '+16283333372',
+      //   to: '+923322332243',
+      // });
+      // console.log(phone.sid);
+      console.log(token);
+    }
 
     res.status(200).json({
       status: 'success',
-      message: 'Token sent to email!',
+      message: `Token sent to ${req?.body?.type}`,
     });
   } catch (err) {
     user.OTP = undefined;
@@ -309,7 +334,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     return next(
-      new AppError('There was an error sending the email. Try again later!'),
+      new AppError('There was an error sending the token. Try again later!'),
       500
     );
   }
