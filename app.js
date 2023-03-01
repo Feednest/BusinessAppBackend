@@ -16,9 +16,11 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 // const tourRouter = require("./routes/tourRoutes");
 const userRouter = require('./routes/userRoutes');
+const paymentRouter = require('./routes/paymentRoutes');
+const insightRouter = require('./routes/insightRoutes');
+
 // const reviewRouter = require("./routes/reviewRoutes");
 // const bookingRouter = require("./routes/bookingRoutes");
-// const bookingController = require("./controllers/bookingController");
 // const viewRouter = require("./routes/viewRoutes");
 
 // Start express app
@@ -44,11 +46,17 @@ app.options('*', cors());
 // // Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/img', express.static(__dirname + '/img'));
+
 // Set security HTTP headers
 app.use(helmet());
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
+if (process.env.NODE_ENV === 'production') {
   app.use(morgan('dev'));
 }
 
@@ -105,6 +113,9 @@ app.use((req, res, next) => {
 //app.use("/", viewRouter);
 // app.use("/api/v1/tours", tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/payment', paymentRouter);
+app.use('/api/v1/insight', insightRouter);
+
 // app.use("/api/v1/reviews", reviewRouter);
 // app.use("/api/v1/bookings", bookingRouter);
 

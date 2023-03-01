@@ -62,6 +62,7 @@ module.exports = class Email {
   }
 
   async sendVerifyOTP() {
+    console.log(this);
     await this.send('verifyOTP', 'Verify your One Time Password');
   }
 
