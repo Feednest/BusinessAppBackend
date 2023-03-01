@@ -313,7 +313,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
   // 3) Send it to user's email
   try {
     if (req?.body?.type === 'email') {
-      await new Email(user, ' ', token).sendVerifyOTP();
+      // await new Email(user, ' ', token).sendVerifyOTP();
     } else {
       // const phone = await client.messages.create({
       //   body: `Hi from Haris as a Test Server!Your OTP token is ${token}`,
@@ -323,6 +323,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
       // console.log(phone.sid);
       console.log(token);
     }
+    console.log(token);
 
     res.status(200).json({
       status: 'success',
