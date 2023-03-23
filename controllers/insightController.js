@@ -53,6 +53,7 @@ exports.createInsight = catchAsync(async (req, res, next) => {
   const {
     user,
     title,
+    images,
     minParticipants,
     maxParticipants,
     expirationDate,
@@ -60,10 +61,9 @@ exports.createInsight = catchAsync(async (req, res, next) => {
     discount,
     maxPurchaseValue,
     deadline,
-    images,
   } = req.body;
 
-  // console.log(req.body);
+  console.log(images);
 
   // 1) Get the user
   const newUser = await User.findById({ _id: req?.body?.user });
@@ -81,6 +81,7 @@ exports.createInsight = catchAsync(async (req, res, next) => {
     !discount ||
     !maxPurchaseValue ||
     !deadline
+    // || !surveyQuestions
   ) {
     return next(new AppError('Please fill all the fields', 404));
   }
