@@ -66,6 +66,7 @@ const insightSchema = new mongoose.Schema({
   },
   surveyQuestions: {
     type: [Object],
+    // required: [true, 'Please provide survey details'],
   },
 });
 
