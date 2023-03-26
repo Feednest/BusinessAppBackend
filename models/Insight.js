@@ -65,8 +65,7 @@ const insightSchema = new mongoose.Schema({
     enum: ['active', 'completed', 'pending'],
   },
   surveyQuestions: {
-    type: [String],
-    // required: [true, 'Please provide survey details'],
+    type: [Object],
   },
 });
 
