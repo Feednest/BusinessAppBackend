@@ -53,7 +53,6 @@ exports.createInsight = catchAsync(async (req, res, next) => {
   const {
     user,
     title,
-    images,
     minParticipants,
     maxParticipants,
     expirationDate,
@@ -61,12 +60,12 @@ exports.createInsight = catchAsync(async (req, res, next) => {
     discount,
     maxPurchaseValue,
     deadline,
+    surveyQuestions,
   } = req.body;
-
-  console.log(images);
 
   // 1) Get the user
   const newUser = await User.findById({ _id: req?.body?.user });
+
   if (!newUser) {
     return next(new AppError('No such User Found', 404));
   }
@@ -80,11 +79,19 @@ exports.createInsight = catchAsync(async (req, res, next) => {
     !participantPercentage ||
     !discount ||
     !maxPurchaseValue ||
-    !deadline
-    // || !surveyQuestions
+    !deadline ||
+    !surveyQuestions
   ) {
     return next(new AppError('Please fill all the fields', 404));
   }
+
+  //Comment this for postman Testing
+
+  [req.body.surveyQuestions, req.body.expirationDate, req.body.deadline] = [
+    JSON.parse(req.body.surveyQuestions),
+    JSON.parse(req.body.expirationDate),
+    JSON.parse(req.body.deadline),
+  ];
 
   try {
     const insight = await Insight.create(req.body);
@@ -96,7 +103,7 @@ exports.createInsight = catchAsync(async (req, res, next) => {
       },
     });
   } catch (error) {
-    return next(new AppError(error, 404));
+    return next(new AppError(error, 500));
   }
 });
 
