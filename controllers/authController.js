@@ -40,11 +40,6 @@ const createSendToken = (user, statusCode, req, res, msg) => {
   });
 };
 
-// social login/signup method that is common for both google and facebook endpoints
-// const socialAuth = catchAsync(async (req, res, email, role) => {
-
-// });
-
 //method to login/singup user using google their google account
 exports.socialLogin = catchAsync(async (req, res) => {
   const { email, role } = req.body;
@@ -182,35 +177,49 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 // Only for rendered pages, no errors!
-exports.isLoggedIn = async (req, res, next) => {
-  if (req.cookies.jwt) {
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  if (req?.body?.token) {
     try {
       // 1) verify token
       const decoded = await promisify(jwt.verify)(
-        req.cookies.jwt,
+        req?.body?.token,
         process.env.JWT_SECRET
       );
 
       // 2) Check if user still exists
       const currentUser = await User.findById(decoded.id);
       if (!currentUser) {
-        return next();
+        return next(new AppError('User Does Not Exist', 200));
       }
 
       // 3) Check if user changed password after the token was issued
       if (currentUser.changedPasswordAfter(decoded.iat)) {
-        return next();
+        return next(
+          new AppError(
+            'User Recently Changed Password! Please Log In Again.',
+            200
+          )
+        );
       }
 
       // THERE IS A LOGGED IN USER
       res.locals.user = currentUser;
-      return next();
+
+      res.status(200).json({
+        status: 'success',
+        data: {
+          user: currentUser,
+        },
+      });
     } catch (err) {
-      return next();
+      if (err.name === 'TokenExpiredError') {
+        return next(new AppError('Token Expired', 200));
+      } else {
+        return next(new AppError('Invalid Token', 200));
+      }
     }
   }
-  next();
-};
+});
 
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
