@@ -9,6 +9,8 @@ router.post('/login', authController.login);
 router.post('/socialLogin', authController.socialLogin);
 router.get('/logout', authController.logout);
 
+router.post('/verifyToken', authController.isLoggedIn);
+
 router.post('/forgotPassword', authController.forgotPassword);
 
 router
