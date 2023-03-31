@@ -8,6 +8,7 @@ const Email = require('../utils/email');
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -51,10 +52,16 @@ exports.socialLogin = catchAsync(async (req, res) => {
     return createSendToken(user, 200, req, res);
   }
 
+  const customer = await stripe.customers.create({
+    name: req?.body?.name,
+    email: req?.body?.email,
+  });
+
   // if client is not registered with the google account we will register them
   const newUser = new User({
     email,
     role,
+    stripeID: customer?.id,
   });
 
   await newUser.save({ validateBeforeSave: false });
@@ -79,12 +86,18 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   if (user) return next(new AppError('User Already Exists', 501));
 
+  const customer = await stripe.customers.create({
+    name: req?.body?.name,
+    email: req?.body?.email,
+  });
+
   const newUser = new User({
     username: name,
     email: email,
     password: password,
     passwordConfirm: passwordConfirm,
     role: role,
+    stripeID: customer?.id,
   });
 
   await newUser.save({ validateBeforeSave: false });

@@ -11,6 +11,7 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const cronJob = require('./utils/cronJob');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -118,6 +119,8 @@ app.use('/api/v1/insight', insightRouter);
 
 // app.use("/api/v1/reviews", reviewRouter);
 // app.use("/api/v1/bookings", bookingRouter);
+
+cronJob;
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
