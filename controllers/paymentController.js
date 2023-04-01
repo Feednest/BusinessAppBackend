@@ -10,8 +10,6 @@ exports.makePayment = catchAsync(async (req, res, next) => {
   try {
     const customer = await stripe.customers.retrieve(stripeID);
 
-    console.log(customer);
-
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: customer?.id },
       { apiVersion: '2022-11-15' }
@@ -70,6 +68,23 @@ exports.chargePayment = catchAsync(async (req, res, next) => {
     res.status(200).json({
       status: 'success',
       paymentIntent,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new AppError('Stripe Error', 404));
+  }
+});
+
+exports.getTransactions = catchAsync(async (req, res, next) => {
+  try {
+    const paymentIntents = await stripe.paymentIntents.list({
+      limit: 3,
+      customer: req?.query?.stripeID,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      paymentIntents,
     });
   } catch (error) {
     console.log(error);

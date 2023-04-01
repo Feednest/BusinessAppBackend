@@ -6,7 +6,10 @@ const router = express.Router();
 
 router.use(authController.protect);
 
-router.post('/createIntent', paymentController.makePayment);
+router
+  .route('/')
+  .post(paymentController.makePayment)
+  .get(paymentController.getTransactions);
 
 router.post('/chargeIntent', paymentController.chargePayment);
 
