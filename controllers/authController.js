@@ -68,7 +68,7 @@ exports.socialLogin = catchAsync(async (req, res) => {
 
   const url = `${req.protocol}://${req.get('host')}/me`;
 
-  // await new Email(newUser, url, '').sendWelcome();
+  await new Email(newUser, url, '').sendWelcome();
 
   createSendToken(newUser, 200, req, res, ' in Registering as New User');
 });
@@ -104,7 +104,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   const url = `${req.protocol}://${req.get('host')}/me`;
 
-  // await new Email(newUser, url, '').sendWelcome();
+  await new Email(newUser, url, '').sendWelcome();
 
   createSendToken(newUser, 201, req, res);
 });
@@ -265,7 +265,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       'host'
     )}/api/v1/users/resetPassword/${resetToken}`;
 
-    // await new Email(user, resetURL, resetToken).sendPasswordReset();
+    await new Email(user, resetURL, resetToken).sendPasswordReset();
 
     res.status(200).json({
       status: 'success',
@@ -335,7 +335,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
   // 3) Send it to user's email
   try {
     if (req?.body?.type === 'email') {
-      // await new Email(user, ' ', token).sendVerifyOTP();
+      await new Email(user, ' ', token).sendVerifyOTP();
     } else {
       // const phone = await client.messages.create({
       //   body: `Hi from Haris as a Test Server!Your OTP token is ${token}`,
