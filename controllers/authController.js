@@ -8,6 +8,7 @@ const Email = require('../utils/email');
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -51,17 +52,23 @@ exports.socialLogin = catchAsync(async (req, res) => {
     return createSendToken(user, 200, req, res);
   }
 
+  const customer = await stripe.customers.create({
+    name: req?.body?.name,
+    email: req?.body?.email,
+  });
+
   // if client is not registered with the google account we will register them
   const newUser = new User({
     email,
     role,
+    stripeID: customer?.id,
   });
 
   await newUser.save({ validateBeforeSave: false });
 
   const url = `${req.protocol}://${req.get('host')}/me`;
 
-  // await new Email(newUser, url, '').sendWelcome();
+  await new Email(newUser, url, '').sendWelcome();
 
   createSendToken(newUser, 200, req, res, ' in Registering as New User');
 });
@@ -79,19 +86,25 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   if (user) return next(new AppError('User Already Exists', 501));
 
+  const customer = await stripe.customers.create({
+    name: req?.body?.name,
+    email: req?.body?.email,
+  });
+
   const newUser = new User({
     username: name,
     email: email,
     password: password,
     passwordConfirm: passwordConfirm,
     role: role,
+    stripeID: customer?.id,
   });
 
   await newUser.save({ validateBeforeSave: false });
 
   const url = `${req.protocol}://${req.get('host')}/me`;
 
-  // await new Email(newUser, url, '').sendWelcome();
+  await new Email(newUser, url, '').sendWelcome();
 
   createSendToken(newUser, 201, req, res);
 });
@@ -252,7 +265,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       'host'
     )}/api/v1/users/resetPassword/${resetToken}`;
 
-    // await new Email(user, resetURL, resetToken).sendPasswordReset();
+    await new Email(user, resetURL, resetToken).sendPasswordReset();
 
     res.status(200).json({
       status: 'success',
@@ -322,7 +335,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
   // 3) Send it to user's email
   try {
     if (req?.body?.type === 'email') {
-      // await new Email(user, ' ', token).sendVerifyOTP();
+      await new Email(user, ' ', token).sendVerifyOTP();
     } else {
       // const phone = await client.messages.create({
       //   body: `Hi from Haris as a Test Server!Your OTP token is ${token}`,

@@ -5,48 +5,89 @@ const factory = require('./handlerFactory');
 const AppError = require('../utils/appError');
 
 exports.makePayment = catchAsync(async (req, res, next) => {
-  // 1) Get the currently booked tour
-  // const user = await User.findOne({ email: req?.body?.email });
-  // if (!user) {
-  //   return next(new AppError('No such User Found', 404));
-  // }
+  const { stripeID, amount } = req?.body;
 
   try {
-    const customer = await stripe.customers.create({
-      // name: req.body.name,
-      // email: req.body.email,
-    });
+    const customer = await stripe.customers.retrieve(stripeID);
 
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: customer?.id },
       { apiVersion: '2022-11-15' }
     );
 
+    // const paymentMethod = await stripe.paymentMethods.create({
+    //   type: 'card',
+    //   card: {
+    //     number: '4242424242424242',
+    //     exp_month: 7,
+    //     exp_year: 2027,
+    //     cvc: '314',
+    //   },
+    // });
+
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 1099,
+      amount: amount ? amount * 100 : 100,
       currency: 'usd',
       customer: customer?.id,
-      payment_method_types: ['card'],
+      // payment_method: paymentMethod?.id,
+      // capture_method: 'manual',
+      // confirmation_method: 'manual',
+      // confirm: true,
     });
 
     res.status(200).json({
       status: 'success',
+      id: paymentIntent.id,
       paymentIntent: paymentIntent.client_secret,
       ephemeralKey: ephemeralKey.secret,
       customer: customer.id,
-      publishableKey:
-        'pk_test_51MVrt1Iy1d298f5wbH4lZXiC4Eq5MHuWOR9yZlWhBTX9TMQy3iy0nPDYlNykiIMta2VTxgFgYHcIly17jknxW0Q000yf0dLJ2x',
+    });
+  } catch (error) {
+    return next(new AppError('Stripe Error', 404));
+  }
+});
+
+exports.chargePayment = catchAsync(async (req, res, next) => {
+  try {
+    // const paymentIntent = await stripe.paymentIntents.capture(
+    //   req?.body?.paymentIntentId,
+    //   {
+    //     amount_to_capture: req?.body?.amount ? req?.body?.amount * 100 : 0,
+    //   }
+    // );
+
+    // const paymentIntent = await stripe.paymentIntents.retrieve(
+    //   req?.body?.paymentIntentId
+    // );
+
+    const paymentIntent = await stripe.refunds.create({
+      charge: 'ch_3MquxtIy1d298f5w2iwU9NBh',
+      amount: 1000,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      paymentIntent,
     });
   } catch (error) {
     console.log(error);
     return next(new AppError('Stripe Error', 404));
   }
-
-  // 3) Create session as response
 });
 
-// exports.createBooking = factory.createOne(Booking);
-// exports.getBooking = factory.getOne(Booking);
-// exports.getAllBookings = factory.getAll(Booking);
-// exports.updateBooking = factory.updateOne(Booking);
-// exports.deleteBooking = factory.deleteOne(Booking);
+exports.getTransactions = catchAsync(async (req, res, next) => {
+  try {
+    const paymentIntents = await stripe.paymentIntents.list({
+      limit: 3,
+      customer: req?.query?.stripeID,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      paymentIntents,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new AppError('Stripe Error', 404));
+  }
+});

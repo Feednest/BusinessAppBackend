@@ -6,19 +6,16 @@ const router = express.Router();
 
 router.use(authController.protect);
 
-router.post('/charge', paymentController.makePayment);
+router
+  .route('/')
+  .post(paymentController.makePayment)
+  .get(paymentController.getTransactions);
 
-// router.use(authController.restrictTo('admin', 'lead-guide'));
+router.post('/chargeIntent', paymentController.chargePayment);
 
 // router
 //   .route('/')
 //   .get(paymentController.getAllBookings)
 //   .post(paymentController.createBooking);
-
-// router
-//   .route('/:id')
-//   .get(paymentController.getBooking)
-//   .patch(paymentController.updateBooking)
-//   .delete(paymentController.deleteBooking);
 
 module.exports = router;
