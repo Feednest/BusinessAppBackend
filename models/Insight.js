@@ -68,6 +68,9 @@ const insightSchema = new mongoose.Schema({
     type: [Object],
     // required: [true, 'Please provide survey details'],
   },
+  amount: {
+    type: Number,
+  },
 });
 
 const Insight = mongoose.model('Insight', insightSchema);

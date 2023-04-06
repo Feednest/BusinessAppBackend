@@ -108,3 +108,5 @@ exports.createInsight = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllInsights = factory.getAll(Insight);
+
+exports.updateInsight = factory.updateOne(Insight);
