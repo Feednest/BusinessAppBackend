@@ -41,6 +41,7 @@ exports.makePayment = catchAsync(async (req, res, next) => {
       paymentIntent: paymentIntent.client_secret,
       ephemeralKey: ephemeralKey.secret,
       customer: customer.id,
+      amount: paymentIntent.amount,
     });
   } catch (error) {
     return next(new AppError('Stripe Error', 404));
@@ -78,7 +79,7 @@ exports.chargePayment = catchAsync(async (req, res, next) => {
 exports.getTransactions = catchAsync(async (req, res, next) => {
   try {
     const paymentIntents = await stripe.paymentIntents.list({
-      limit: 3,
+      limit: 100,
       customer: req?.query?.stripeID,
     });
 

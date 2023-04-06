@@ -15,4 +15,6 @@ router
   )
   .get(insightController.getAllInsights);
 
+router.patch('/:id', insightController.updateInsight);
+
 module.exports = router;
