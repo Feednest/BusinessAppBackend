@@ -17,8 +17,8 @@ const insightSchema = new mongoose.Schema({
     type: [String],
   },
   gender: {
-    type: String,
-    enum: ['male', 'female'],
+    type: [String],
+    // enum: ['male', 'female'],
   },
   minAge: {
     type: Number,
