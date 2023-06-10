@@ -3,12 +3,33 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
+const addressSchema = new mongoose.Schema({
+  address: {
+    type: String,
+  },
+  city: {
+    type: String,
+  },
+  country: {
+    type: String,
+  },
+  zipCode: {
+    type: String,
+  },
+  state: {
+    type: String,
+  },
+});
+
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: [true, 'Please tell us your name!'],
   },
   businessName: {
+    type: String,
+  },
+  nickname: {
     type: String,
   },
   phoneNumber: {
@@ -66,6 +87,15 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   stripeID: String,
+  address: {
+    type: addressSchema,
+  },
+  yearOfBirth: {
+    type: Date,
+  },
+  sex: {
+    type: String,
+  },
 });
 
 userSchema.pre('save', async function (next) {
