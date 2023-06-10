@@ -42,14 +42,16 @@ const createSendToken = (user, statusCode, req, res, msg) => {
 };
 
 //method to login/singup user using google their google account
-exports.socialLogin = catchAsync(async (req, res) => {
+exports.socialLogin = catchAsync(async (req, res, next) => {
   const { email, role } = req.body;
 
   const user = await User.findOne({ email });
 
   // if client is already registered with the google account we will directly log them in and send an access token to the client
   if (user != null) {
-    return createSendToken(user, 200, req, res);
+    if (user?.emailVerified == false && user.phoneNoVerified == false) {
+      return next(new AppError('Please Verify Your Email Or Phone', 401));
+    } else return createSendToken(user, 200, req, res);
   }
 
   const customer = await stripe.customers.create({
@@ -84,8 +86,11 @@ exports.signup = catchAsync(async (req, res, next) => {
   //Check if User already exists
   const user = await User.findOne({ email: req?.body?.email });
 
-  if (user) return next(new AppError('User Already Exists', 501));
-
+  if (user) {
+    if (user?.emailVerified == false && user.phoneNoVerified == false) {
+      return next(new AppError('Please Verify Your Email Or Phone', 401));
+    } else return next(new AppError('User Already Exists', 501));
+  }
   const customer = await stripe.customers.create({
     name: req?.body?.name,
     email: req?.body?.email,
@@ -130,6 +135,10 @@ exports.login = catchAsync(async (req, res, next) => {
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect password', 401));
+  }
+
+  if (user?.emailVerified == false && user.phoneNoVerified == false) {
+    return next(new AppError('Please Verify Your Email Or Phone', 401));
   }
 
   // 3) If everything ok, send token to client
