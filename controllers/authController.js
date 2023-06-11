@@ -101,8 +101,60 @@ exports.signup = catchAsync(async (req, res, next) => {
     email: email,
     password: password,
     passwordConfirm: passwordConfirm,
-    role: role,
+    role: role ? role : 'business',
     stripeID: customer?.id,
+  });
+
+  await newUser.save({ validateBeforeSave: false });
+
+  const url = `${req.protocol}://${req.get('host')}/me`;
+
+  await new Email(newUser, url, '').sendWelcome();
+
+  createSendToken(newUser, 201, req, res);
+});
+
+exports.customerSignup = catchAsync(async (req, res, next) => {
+  const {
+    email,
+    nickname,
+    phoneNumber,
+    address,
+    yearOfBirth,
+    sex,
+    password,
+    passwordConfirm,
+    role,
+  } = req.body;
+
+  // 1) Check if email and password exist
+  if (!nickname || !email || !password || !passwordConfirm) {
+    return next(new AppError('Please provide All required Fields!', 400));
+  }
+
+  //Check if User already exists
+  const user = await User.findOne({ email: req?.body?.email });
+
+  if (user) {
+    if (user?.emailVerified == false && user.phoneNoVerified == false) {
+      return next(new AppError('Please Verify Your Email Or Phone', 401));
+    } else return next(new AppError('User Already Exists', 501));
+  }
+  // const customer = await stripe.customers.create({
+  //   name: req?.body?.name,
+  //   email: req?.body?.email,
+  // });
+
+  const newUser = new User({
+    email: email,
+    password: password,
+    passwordConfirm: passwordConfirm,
+    nickname: nickname,
+    phoneNumber: phoneNumber,
+    address: address,
+    yearOfBirth: yearOfBirth,
+    sex: sex,
+    role: role ? role : 'customer',
   });
 
   await newUser.save({ validateBeforeSave: false });

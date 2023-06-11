@@ -110,3 +110,47 @@ exports.createInsight = catchAsync(async (req, res, next) => {
 exports.getAllInsights = factory.getAll(Insight);
 
 exports.updateInsight = factory.updateOne(Insight);
+
+exports.addResponse = catchAsync(async (req, res, next) => {
+  const { userID, surveyResponse, insightID } = req.body;
+
+  // 1) Get the user
+  const newUser = await User.findById({ _id: req?.body?.userID });
+
+  if (!newUser) {
+    return next(new AppError('No such User Found', 404));
+  }
+
+  // 2) Find the insight object
+  const insight = await Insight.findById(insightID);
+
+  if (!insight) {
+    return next(new AppError('No such Insight Found', 404));
+  }
+
+  // 3) Check if the user has already submitted a response
+  const hasSubmittedResponse = insight.surveyResponses.some(
+    (response) => response.userID.toString() === newUser._id.toString()
+  );
+
+  if (hasSubmittedResponse) {
+    return next(
+      new AppError('This user has already submitted its response', 400)
+    );
+  }
+
+  // 4) Update the surveyResponses array
+  insight.surveyResponses.push({
+    userID: newUser._id,
+    response: surveyResponse,
+  });
+
+  const updatedInsight = await insight.save();
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      insight: updatedInsight,
+    },
+  });
+});
