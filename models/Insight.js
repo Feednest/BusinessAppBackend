@@ -71,6 +71,17 @@ const insightSchema = new mongoose.Schema({
   amount: {
     type: Number,
   },
+  surveyResponses: [
+    {
+      userID: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+      response: {
+        type: [Object],
+      },
+    },
+  ],
 });
 
 const Insight = mongoose.model('Insight', insightSchema);
