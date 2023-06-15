@@ -13,12 +13,21 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const cronJob = require('./utils/cronJob');
 
+var admin = require('firebase-admin');
+
+var serviceAccount = require('./feednestapp-firebase-adminsdk-av31l-3f342ab1ab.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 // const tourRouter = require("./routes/tourRoutes");
 const userRouter = require('./routes/userRoutes');
 const paymentRouter = require('./routes/paymentRoutes');
 const insightRouter = require('./routes/insightRoutes');
+const notificationRouter = require('./routes/notificationRoutes');
 
 // const reviewRouter = require("./routes/reviewRoutes");
 // const bookingRouter = require("./routes/bookingRoutes");
@@ -116,6 +125,7 @@ app.use((req, res, next) => {
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/payment', paymentRouter);
 app.use('/api/v1/insight', insightRouter);
+app.use('/api/v1/notification', notificationRouter);
 
 // app.use("/api/v1/reviews", reviewRouter);
 // app.use("/api/v1/bookings", bookingRouter);
