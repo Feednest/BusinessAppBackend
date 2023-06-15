@@ -3,6 +3,7 @@ const factory = require('./handlerFactory');
 const AppError = require('../utils/appError');
 const Insight = require('../models/Insight');
 const User = require('../models/User');
+const Reward = require('../models/Reward');
 const multer = require('multer');
 const sharp = require('sharp');
 
@@ -146,6 +147,13 @@ exports.addResponse = catchAsync(async (req, res, next) => {
   });
 
   const updatedInsight = await insight.save();
+
+  const reward = Reward.create({
+    user: newUser._id,
+    survey: insight._id,
+  });
+
+  console.log(reward);
 
   res.status(200).json({
     status: 'success',
