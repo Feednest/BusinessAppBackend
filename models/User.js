@@ -91,7 +91,7 @@ const userSchema = new mongoose.Schema({
     type: addressSchema,
   },
   yearOfBirth: {
-    type: Date,
+    type: String,
   },
   sex: {
     type: String,
