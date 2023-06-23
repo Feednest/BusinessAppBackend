@@ -153,12 +153,11 @@ exports.addResponse = catchAsync(async (req, res, next) => {
     survey: insight._id,
   });
 
-  console.log(reward);
-
   res.status(200).json({
     status: 'success',
     data: {
       insight: updatedInsight,
+      reward: reward,
     },
   });
 });
