@@ -28,6 +28,7 @@ const userRouter = require('./routes/userRoutes');
 const paymentRouter = require('./routes/paymentRoutes');
 const insightRouter = require('./routes/insightRoutes');
 const notificationRouter = require('./routes/notificationRoutes');
+const rewardRouter = require('./routes/rewardRoutes');
 
 // const reviewRouter = require("./routes/reviewRoutes");
 // const bookingRouter = require("./routes/bookingRoutes");
@@ -126,6 +127,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/payment', paymentRouter);
 app.use('/api/v1/insight', insightRouter);
 app.use('/api/v1/notification', notificationRouter);
+app.use('/api/v1/reward', rewardRouter);
 
 // app.use("/api/v1/reviews", reviewRouter);
 // app.use("/api/v1/bookings", bookingRouter);

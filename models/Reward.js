@@ -13,6 +13,13 @@ const rewardSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  claimed: {
+    type: Boolean,
+    default: false,
+  },
+  image: {
+    type: String,
+  },
 });
 
 const Reward = mongoose.model('Reward', rewardSchema);
