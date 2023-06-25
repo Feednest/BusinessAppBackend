@@ -6,6 +6,8 @@ const User = require('../models/User');
 const Reward = require('../models/Reward');
 const multer = require('multer');
 const sharp = require('sharp');
+const QRCode = require('qrcode');
+const dotenv = require('dotenv');
 
 const multerStorage = multer.memoryStorage();
 
@@ -148,10 +150,28 @@ exports.addResponse = catchAsync(async (req, res, next) => {
 
   const updatedInsight = await insight.save();
 
-  const reward = Reward.create({
+  const reward = new Reward({
     user: newUser._id,
     survey: insight._id,
   });
+
+  const filename = `reward-${req?.user?._id}-${Date.now()}.png`;
+
+  QRCode.toFile(
+    `public/img/rewards/${filename}`,
+    `${process.env.QR_CODE_SECRET}*${reward._id}`,
+    {
+      errorCorrectionLevel: 'H',
+      type: 'png',
+    },
+    function (err, data) {
+      if (err) throw err;
+    }
+  );
+
+  reward.image = filename;
+
+  await reward.save();
 
   res.status(200).json({
     status: 'success',
