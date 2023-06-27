@@ -231,6 +231,25 @@ exports.addResponse = catchAsync(async (req, res, next) => {
     }),
   });
 
+  if (updatedInsight.submissions === updatedInsight.maxParticipants) {
+    await fetch(`${process.env.URL}api/v1/notification/send`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: `${insight?.title} survey, ${insight.maxParticipants} people completed`,
+        body: 'Click here to view survey',
+        user: insight?.user.valueOf(),
+        tokenID: notification?.tokenID,
+        image: null,
+        data: 'test',
+        navigate: 'Survey',
+        id: mongoose.Types.ObjectId().valueOf(),
+      }),
+    });
+  }
+
   res.status(200).json({
     status: 'success',
     data: {
