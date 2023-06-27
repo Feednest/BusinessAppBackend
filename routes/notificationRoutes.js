@@ -9,6 +9,7 @@ router
   .route('/')
   .get(notificationController.getNotifications)
   .post(notificationController.registerNotification)
-  .patch(notificationController.updateNotification);
+  .patch(notificationController.updateNotification)
+  .delete(notificationController.deleteNotification);
 
 module.exports = router;

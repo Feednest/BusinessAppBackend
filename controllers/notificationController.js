@@ -63,7 +63,7 @@ exports.updateNotification = catchAsync(async (req, res, next) => {
 
 exports.sendNotification = catchAsync(async (req, res, next) => {
   try {
-    const { title, body, navigate, tokenID, image, user, data } = req.body;
+    const { title, body, navigate, tokenID, image, user, data, id } = req.body;
 
     const obj = await Notification.findOne({ user: user });
 
@@ -80,6 +80,7 @@ exports.sendNotification = catchAsync(async (req, res, next) => {
       data: {
         navigate: navigate ? navigate : 'Rewards',
         image: image ? image : 'default',
+        id: id ? id : mongoose.Types.ObjectId().valueOf(),
         data: data ? data : null,
       },
       android: {
@@ -116,6 +117,37 @@ exports.sendNotification = catchAsync(async (req, res, next) => {
       .status(err.status || 500)
       .json({ message: err.message || 'Something went wrong!' });
   }
+});
+
+exports.deleteNotification = catchAsync(async (req, res, next) => {
+  const { id } = req.query;
+
+  if (!id) {
+    return next(new AppError('You must provide a notification ID', 400));
+  }
+
+  const notification = await Notification.findOne({
+    notifications: { $elemMatch: { 'data.id': id } },
+  });
+
+  if (!notification) {
+    return next(new AppError('No such notification found', 404));
+  }
+
+  const matchingNotification = notification.notifications.find(
+    (notification) => notification.data.id === id
+  );
+
+  notification.notifications.pull(matchingNotification);
+
+  await notification.save();
+
+  return res.status(200).json({
+    status: 'success',
+    data: {
+      message: 'Successfully deleted notification',
+    },
+  });
 });
 
 exports.getNotifications = catchAsync(async (req, res, next) => {

@@ -10,6 +10,7 @@ const sharp = require('sharp');
 const QRCode = require('qrcode');
 const dotenv = require('dotenv');
 const axios = require('axios');
+var mongoose = require('mongoose');
 
 const multerStorage = multer.memoryStorage();
 
@@ -194,6 +195,7 @@ exports.addResponse = catchAsync(async (req, res, next) => {
       image: null,
       data: 'test',
       navigate: 'Survey',
+      id: mongoose.Types.ObjectId().valueOf(),
     }),
   });
 
@@ -214,6 +216,7 @@ exports.addResponse = catchAsync(async (req, res, next) => {
       image: null,
       data: 'test',
       navigate: 'Survey',
+      id: mongoose.Types.ObjectId().valueOf(),
     }),
   });
 
