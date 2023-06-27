@@ -74,10 +74,11 @@ exports.sendNotification = catchAsync(async (req, res, next) => {
     }
 
     const notification = {
-      title: title ? title : 'Results Are Ready!',
-      body: body ? body : 'Click here to view your results',
+      title: title ? title : 'New Notification',
+      body: body ? body : 'Click here to view',
+      createdAt: Date(),
       data: {
-        navigate: navigate ? navigate : 'Xray',
+        navigate: navigate ? navigate : 'Rewards',
         image: image ? image : 'default',
         data: data ? data : null,
       },

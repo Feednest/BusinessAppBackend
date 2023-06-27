@@ -2,12 +2,14 @@ const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
 const AppError = require('../utils/appError');
 const Insight = require('../models/Insight');
+const Notification = require('../models/Notification');
 const User = require('../models/User');
 const Reward = require('../models/Reward');
 const multer = require('multer');
 const sharp = require('sharp');
 const QRCode = require('qrcode');
 const dotenv = require('dotenv');
+const axios = require('axios');
 
 const multerStorage = multer.memoryStorage();
 
@@ -32,8 +34,6 @@ exports.resizeInsightPhotos = catchAsync(async (req, res, next) => {
   if (!req.files) return next();
 
   req.body.images = [];
-
-  console.log(req.user);
 
   await Promise.all(
     req.files.map(async (file, i) => {
@@ -124,6 +124,10 @@ exports.addResponse = catchAsync(async (req, res, next) => {
     return next(new AppError('No such User Found', 404));
   }
 
+  if (newUser?.role !== 'customer') {
+    return next(new AppError('Only customers can submit responses', 404));
+  }
+
   // 2) Find the insight object
   const insight = await Insight.findById(insightID);
 
@@ -172,6 +176,46 @@ exports.addResponse = catchAsync(async (req, res, next) => {
   reward.image = filename;
 
   await reward.save();
+
+  const notification = await Notification.findOne({
+    user: insight?.user.valueOf(),
+  });
+
+  await fetch(`${process.env.URL}api/v1/notification/send`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      title: `${newUser?.username} has submitted a response to your survey`,
+      body: 'Click here to view survey',
+      user: insight?.user.valueOf(),
+      tokenID: notification?.tokenID,
+      image: null,
+      data: 'test',
+      navigate: 'Survey',
+    }),
+  });
+
+  const notification2 = await Notification.findOne({
+    user: req?.body?.userID,
+  });
+
+  await fetch(`${process.env.URL}api/v1/notification/send`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      title: `Your response has been submitted successfully`,
+      body: 'Click here to view survey',
+      user: req?.body?.userID,
+      tokenID: notification2?.tokenID,
+      image: null,
+      data: 'test',
+      navigate: 'Survey',
+    }),
+  });
 
   res.status(200).json({
     status: 'success',
