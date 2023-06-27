@@ -147,11 +147,22 @@ exports.addResponse = catchAsync(async (req, res, next) => {
     );
   }
 
+  if (insight.submissions >= insight.maxParticipants) {
+    return next(
+      new AppError(
+        'This survey has reached its maximum number of participants',
+        400
+      )
+    );
+  }
+
   // 4) Update the surveyResponses array
   insight.surveyResponses.push({
     userID: newUser._id,
     response: surveyResponse,
   });
+
+  insight.submissions = insight.submissions + 1;
 
   const updatedInsight = await insight.save();
 
