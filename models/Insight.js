@@ -71,6 +71,10 @@ const insightSchema = new mongoose.Schema({
   amount: {
     type: Number,
   },
+  submissions: {
+    type: Number,
+    default: 0,
+  },
   surveyResponses: [
     {
       userID: {

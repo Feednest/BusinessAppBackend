@@ -51,6 +51,8 @@ exports.socialLogin = catchAsync(async (req, res, next) => {
   if (user != null) {
     if (user?.emailVerified == false && user.phoneNoVerified == false) {
       return next(new AppError('Please Verify Your Email Or Phone', 401));
+    } else if (user?.role != role) {
+      return next(new AppError('You cannot login with this role', 401));
     } else return createSendToken(user, 200, req, res);
   }
 
@@ -167,7 +169,7 @@ exports.customerSignup = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
   // 1) Check if email and password exist
   if (!email || !password) {
@@ -191,6 +193,10 @@ exports.login = catchAsync(async (req, res, next) => {
 
   if (user?.emailVerified == false && user.phoneNoVerified == false) {
     return next(new AppError('Please Verify Your Email Or Phone', 401));
+  }
+
+  if (user?.role != role) {
+    return next(new AppError('You cannot login with this role', 401));
   }
 
   // 3) If everything ok, send token to client

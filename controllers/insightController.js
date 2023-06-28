@@ -147,11 +147,22 @@ exports.addResponse = catchAsync(async (req, res, next) => {
     );
   }
 
+  if (insight.submissions >= insight.maxParticipants) {
+    return next(
+      new AppError(
+        'This survey has reached its maximum number of participants',
+        400
+      )
+    );
+  }
+
   // 4) Update the surveyResponses array
   insight.surveyResponses.push({
     userID: newUser._id,
     response: surveyResponse,
   });
+
+  insight.submissions = insight.submissions + 1;
 
   const updatedInsight = await insight.save();
 
@@ -219,6 +230,25 @@ exports.addResponse = catchAsync(async (req, res, next) => {
       id: mongoose.Types.ObjectId().valueOf(),
     }),
   });
+
+  if (updatedInsight.submissions === updatedInsight.maxParticipants) {
+    await fetch(`${process.env.URL}api/v1/notification/send`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: `${insight?.title} survey, ${insight.maxParticipants} people completed`,
+        body: 'Click here to view survey',
+        user: insight?.user.valueOf(),
+        tokenID: notification?.tokenID,
+        image: null,
+        data: 'test',
+        navigate: 'Survey',
+        id: mongoose.Types.ObjectId().valueOf(),
+      }),
+    });
+  }
 
   res.status(200).json({
     status: 'success',
