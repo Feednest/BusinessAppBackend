@@ -32,62 +32,59 @@ exports.getAllRewards = factory.getAll(Reward);
 exports.verifyReward = catchAsync(async (req, res, next) => {
   // 1) Get the user
   const newUser = await User.findById({ _id: req?.body?.userID });
+  const value = req?.body?.value;
 
   if (!newUser) {
     return next(new AppError('No such User Found', 404));
   }
 
   try {
-    const buffer = req?.file?.buffer;
+    // const buffer = req?.file?.buffer;
 
-    // __ Parse the image using Jimp.read() __ \\
-    Jimp.read(buffer, function (err, image) {
-      if (err) {
-        return next(new AppError('Jimp Error Occured', 400));
-      }
-      // __ Creating an instance of qrcode-reader __ \\
+    // // __ Parse the image using Jimp.read() __ \\
+    // Jimp.read(buffer, function (err, image) {
+    //   if (err) {
+    //     return next(new AppError('Jimp Error Occured', 400));
+    //   }
+    //   // __ Creating an instance of qrcode-reader __ \\
 
-      const qrCodeInstance = new qrCodeReader();
+    //   const qrCodeInstance = new qrCodeReader();
 
-      qrCodeInstance.callback = async function (err, value) {
-        if (err) {
-          return next(new AppError('qr code reader error occured', 400));
-        }
-        const values = value.result.split('*');
+    //   qrCodeInstance.callback = async function (err, value) {
+    //     if (err) {
+    //       return next(new AppError('qr code reader error occured', 400));
+    //     }
 
-        if (values[0] !== process.env.QR_CODE_SECRET) {
-          return next(new AppError('Invalid QR Code', 400));
-        }
+    const values = value.split('*');
 
-        const reward = await Reward.findById(values[1]);
+    if (values[0] !== process.env.QR_CODE_SECRET) {
+      return next(new AppError('Invalid QR Code', 400));
+    }
 
-        if (!reward) {
-          return next(new AppError('No such Reward Found', 404));
-        }
+    const reward = await Reward.findById(values[1]);
 
-        if (reward?.claimed == true) {
-          return next(new AppError('Reward already claimed', 400));
-        }
+    if (!reward) {
+      return next(new AppError('No such Reward Found', 404));
+    }
 
-        if (reward?.available == false) {
-          return next(new AppError('Reward Not Avaliable yet', 400));
-        }
+    if (reward?.claimed == true) {
+      return next(new AppError('Reward already claimed', 400));
+    }
 
-        reward.claimed = true;
-        reward.available = false;
+    if (reward?.available == false) {
+      return next(new AppError('Reward Not Avaliable yet', 400));
+    }
 
-        await reward.save();
+    reward.claimed = true;
+    reward.available = false;
 
-        return res.status(200).json({
-          status: 'success',
-          data: {
-            data: reward,
-          },
-        });
-      };
+    await reward.save();
 
-      // __ Decoding the QR code __ \\
-      qrCodeInstance.decode(image.bitmap);
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        data: reward,
+      },
     });
   } catch (error) {
     return next(new AppError(error, 500));
