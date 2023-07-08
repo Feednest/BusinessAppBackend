@@ -63,7 +63,7 @@ exports.default = cron.schedule('0 0 * * *', async () => {
             tokenID: notification?.tokenID,
             image: null,
             data: 'test',
-            navigate: 'Survey',
+            navigate: 'Stats',
             id: mongoose.Types.ObjectId().valueOf(),
           }),
         });
