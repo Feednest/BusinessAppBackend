@@ -4,6 +4,8 @@ const AppError = require('../utils/appError');
 const Insight = require('../models/Insight');
 const User = require('../models/User');
 const Reward = require('../models/Reward');
+const Notification = require('../models/Notification');
+const mongoose = require('mongoose');
 const Jimp = require('jimp');
 const fs = require('fs');
 const qrCodeReader = require('qrcode-reader');
@@ -77,6 +79,27 @@ exports.verifyReward = catchAsync(async (req, res, next) => {
 
     reward.claimed = true;
     reward.available = false;
+
+    const notification = await Notification.findOne({
+      user: values[1],
+    });
+
+    await fetch(`${process.env.URL}api/v1/notification/send`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: `Reward has been Claimed`,
+        body: 'Click here to view Reward',
+        user: values[1],
+        tokenID: notification?.tokenID,
+        image: null,
+        data: 'test',
+        navigate: 'Rewards',
+        id: mongoose.Types.ObjectId().valueOf(),
+      }),
+    });
 
     await reward.save();
 

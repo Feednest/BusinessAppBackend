@@ -10,6 +10,7 @@ const sharp = require('sharp');
 const QRCode = require('qrcode');
 const dotenv = require('dotenv');
 const axios = require('axios');
+const APIFeatures = require('../utils/apiFeatures');
 var mongoose = require('mongoose');
 
 const multerStorage = multer.memoryStorage();
@@ -111,7 +112,47 @@ exports.createInsight = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.getAllInsights = factory.getAll(Insight);
+function isDuplicate(id, doc) {
+  if (doc && doc.length > 0) {
+    for (let i = 0; i < doc.length; i++) {
+      if (doc[i]._id.toString() === id.toString()) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+exports.getAllInsights = catchAsync(async (req, res, next) => {
+  let filter = {};
+
+  const allInsights = await Insight.find({});
+
+  const features = new APIFeatures(Insight.find(filter), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const doc = await features.query;
+
+  const filteredResponses = [];
+
+  allInsights.forEach((response) => {
+    if (response.gender.length === 0 && !isDuplicate(response._id, doc)) {
+      filteredResponses.push(response);
+    }
+  });
+
+  const updatedDoc = doc.concat(filteredResponses);
+
+  res.status(200).json({
+    status: 'success',
+    results: updatedDoc.length,
+    data: {
+      data: updatedDoc,
+    },
+  });
+});
 
 exports.updateInsight = factory.updateOne(Insight);
 
