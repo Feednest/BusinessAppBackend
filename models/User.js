@@ -4,7 +4,10 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
 const addressSchema = new mongoose.Schema({
-  address: {
+  address1: {
+    type: String,
+  },
+  address2: {
     type: String,
   },
   city: {
@@ -17,6 +20,9 @@ const addressSchema = new mongoose.Schema({
     type: String,
   },
   state: {
+    type: String,
+  },
+  countryCode: {
     type: String,
   },
 });
