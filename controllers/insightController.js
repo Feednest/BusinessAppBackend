@@ -199,13 +199,13 @@ exports.addResponse = catchAsync(async (req, res, next) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      title: `${newUser?.username} has submitted a response to your survey`,
+      title: `${newUser?.nickname} has submitted a response to your survey`,
       body: 'Click here to view survey',
       user: insight?.user.valueOf(),
       tokenID: notification?.tokenID,
       image: null,
       data: 'test',
-      navigate: 'Survey',
+      navigate: 'Stats',
       id: mongoose.Types.ObjectId().valueOf(),
     }),
   });
@@ -226,7 +226,7 @@ exports.addResponse = catchAsync(async (req, res, next) => {
       tokenID: notification2?.tokenID,
       image: null,
       data: 'test',
-      navigate: 'Survey',
+      navigate: 'Home',
       id: mongoose.Types.ObjectId().valueOf(),
     }),
   });
@@ -244,7 +244,7 @@ exports.addResponse = catchAsync(async (req, res, next) => {
         tokenID: notification?.tokenID,
         image: null,
         data: 'test',
-        navigate: 'Survey',
+        navigate: 'Stats',
         id: mongoose.Types.ObjectId().valueOf(),
       }),
     });
