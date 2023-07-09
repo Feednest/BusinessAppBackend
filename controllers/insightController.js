@@ -126,6 +126,8 @@ function isDuplicate(id, doc) {
 exports.getAllInsights = catchAsync(async (req, res, next) => {
   let filter = {};
 
+  const append = req?.query?.append;
+
   const allInsights = await Insight.find({});
 
   const features = new APIFeatures(Insight.find(filter), req.query)
@@ -133,6 +135,7 @@ exports.getAllInsights = catchAsync(async (req, res, next) => {
     .sort()
     .limitFields()
     .paginate();
+
   const doc = await features.query;
 
   const filteredResponses = [];
@@ -147,9 +150,10 @@ exports.getAllInsights = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    results: updatedDoc.length,
+    results:
+      append == undefined || append == 'false' ? doc.length : updatedDoc.length,
     data: {
-      data: updatedDoc,
+      data: append == undefined || append == 'false' ? doc : updatedDoc,
     },
   });
 });
