@@ -238,13 +238,15 @@ exports.addResponse = catchAsync(async (req, res, next) => {
     user: insight?.user.valueOf(),
   });
 
+  const name = newUser?.nickname === undefined ? 'customer' : newUser?.nickname;
+
   await fetch(`${process.env.URL}api/v1/notification/send`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      title: `${newUser?.nickname} has submitted a response to your survey`,
+      title: `${name} has submitted a response to your survey`,
       body: 'Click here to view survey',
       user: insight?.user.valueOf(),
       tokenID: notification?.tokenID,
