@@ -209,6 +209,10 @@ exports.addResponse = catchAsync(async (req, res, next) => {
 
   insight.submissions = insight.submissions + 1;
 
+  if (insight.submissions === insight.maxParticipants) {
+    insight.status = 'completed';
+  }
+
   const updatedInsight = await insight.save();
 
   const reward = new Reward({
