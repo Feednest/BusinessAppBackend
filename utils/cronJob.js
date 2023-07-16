@@ -5,7 +5,7 @@ const Reward = require('../models/Reward');
 const Notification = require('../models/Notification');
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
-
+// */10 * * * * *
 exports.default = cron.schedule('0 0 * * *', async () => {
   const currentDate = new Date();
   const expiredInsights = await Insight.find({
@@ -28,6 +28,9 @@ exports.default = cron.schedule('0 0 * * *', async () => {
           notification = await Notification.findOne({
             user: reward?.user,
           });
+
+          reward.available = true;
+          await reward.save();
 
           await fetch(`${process.env.URL}api/v1/notification/send`, {
             method: 'POST',
