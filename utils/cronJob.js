@@ -20,7 +20,7 @@ function selectRewardsRandomly(rewards, percentage) {
 }
 
 // */10 * * * * *
-exports.default = cron.schedule('*/10 * * * * *', async () => {
+exports.default = cron.schedule('*0 0 * * *', async () => {
   const currentDate = new Date();
   const expiredInsights = await Insight.find({
     expirationDate: { $lt: currentDate },
