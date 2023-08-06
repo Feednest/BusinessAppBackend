@@ -5,12 +5,28 @@ const Reward = require('../models/Reward');
 const Notification = require('../models/Notification');
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
+
+function selectRewardsRandomly(rewards, percentage) {
+  const selectedRewards = [];
+  const numRewardsToSelect = Math.ceil((percentage / 100) * rewards.length);
+
+  for (let i = 0; i < numRewardsToSelect; i++) {
+    const randomIndex = Math.floor(Math.random() * rewards.length);
+    selectedRewards.push(rewards[randomIndex]);
+    rewards.splice(randomIndex, 1);
+  }
+
+  return selectedRewards;
+}
+
 // */10 * * * * *
-exports.default = cron.schedule('0 0 * * *', async () => {
+exports.default = cron.schedule('*/10 * * * * *', async () => {
   const currentDate = new Date();
   const expiredInsights = await Insight.find({
     expirationDate: { $lt: currentDate },
   });
+
+  
 
   for (const insight of expiredInsights) {
     if (
@@ -18,11 +34,16 @@ exports.default = cron.schedule('0 0 * * *', async () => {
       insight.status === 'active'
     ) {
       try {
-        const rewards = await Reward.find({
+        let rewards = await Reward.find({
           survey: insight?._id,
         });
 
         let notification;
+
+        if(insight.participantPercentage !== 100) {
+          const selectedRewards = selectRewardsRandomly(rewards, insight.participantPercentage);
+          rewards = selectedRewards;
+        }
 
         for (const reward of rewards) {
           notification = await Notification.findOne({
