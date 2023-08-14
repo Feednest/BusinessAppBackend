@@ -19,15 +19,15 @@ function selectRewardsRandomly(rewards, percentage) {
   return selectedRewards;
 }
 
-// */10 * * * * *
+// */10 * * * * *  0 0 * * *
 exports.default = cron.schedule('0 0 * * *', async () => {
   const currentDate = new Date();
   const expiredInsights = await Insight.find({
     expirationDate: { $lt: currentDate },
   });
 
-  
 
+  
   for (const insight of expiredInsights) {
     if (
       insight.submissions >= insight.minParticipants &&
@@ -97,6 +97,10 @@ exports.default = cron.schedule('0 0 * * *', async () => {
       } catch (err) {
         console.log(err);
       }
+    }
+    else if(insight.submissions < insight.minParticipants && insight.status === 'active'){
+      insight.status = 'completed';
+      await insight.save();
     }
   }
   console.log('Insights updated');
