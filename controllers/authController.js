@@ -43,7 +43,7 @@ const createSendToken = (user, statusCode, req, res, msg) => {
 
 //method to login/singup user using google their google account
 exports.socialLogin = catchAsync(async (req, res, next) => {
-  const { email, role } = req.body;
+  const { email, role, socialAccount } = req.body;
 
   const user = await User.findOne({ email });
 
@@ -65,6 +65,7 @@ exports.socialLogin = catchAsync(async (req, res, next) => {
   const newUser = new User({
     email,
     role,
+    socialAccount,
     stripeID: customer?.id,
   });
 
@@ -183,12 +184,23 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('No Such User Exist', 400));
   }
 
+  console.log(user.socialAccount, 'social account');
+
+  if (user.socialAccount) {
+    return next(
+      new AppError(
+        `It seems you signed up with ${user.socialAccount}. Please continue using 'Sign in with ${user.socialAccount}' for login`,
+        400
+      )
+    );
+  }
+
   if (user?.password == undefined) {
     return createSendToken(user, 200, req, res);
   }
 
   if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new AppError('Incorrect password', 401));
+    return next(new AppError('Invalid email or password', 401));
   }
 
   if (user?.emailVerified == false && user.phoneNoVerified == false) {
