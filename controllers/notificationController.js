@@ -77,6 +77,7 @@ exports.sendNotification = catchAsync(async (req, res, next) => {
       title: title ? title : 'New Notification',
       body: body ? body : 'Click here to view',
       createdAt: Date(),
+      isRead: false,
       data: {
         navigate: navigate ? navigate : 'Rewards',
         image: image ? image : 'default',
@@ -174,3 +175,68 @@ exports.getNotifications = catchAsync(async (req, res, next) => {
     obj,
   });
 });
+
+exports.updateNotificationIsReadStatus = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  // update isRead status of the notif
+  const obj = await Notification.findOneAndUpdate(
+    {
+      notifications: { $elemMatch: { 'data.id': id } },
+    },
+    {
+      $set: {
+        'notifications.$.isRead': true,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!obj) {
+    return next(
+      new AppError('No Such User with Notifications Object Found', 404)
+    );
+  }
+
+  return res.status(200).json({
+    status: 'success',
+    obj,
+  });
+});
+
+// temp functions
+// exports.getAllNotifications = catchAsync(async (req, res, next) => {
+//   const obj = await Notification.find();
+
+//   if (!obj) {
+//     return next(
+//       new AppError('No Such User with Notifications Object Found', 404)
+//     );
+//   }
+
+//   return res.status(200).json({
+//     status: 'success',
+//     obj,
+//   });
+// });
+
+// exports.updateAllNotifications = catchAsync(async (req, res, next) => {
+//   const response = await Notification.updateMany(
+//     {},
+//     {
+//       $set: {
+//         'notifications.$[].id': uuidv4(),
+//         'notifications.$[].isRead': false,
+//       },
+//     }
+//   );
+
+//   return res.status(200).json({
+//     status: 'success',
+//     data: {
+//       message: 'Successfully updated all notifications',
+//       data: response,
+//     },
+//   });
+// });

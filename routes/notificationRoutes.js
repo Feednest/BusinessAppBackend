@@ -12,4 +12,9 @@ router
   .patch(notificationController.updateNotification)
   .delete(notificationController.deleteNotification);
 
+router.patch('/:id', notificationController.updateNotificationIsReadStatus);
+
+// router.get('/all', notificationController.getAllNotifications);
+// router.patch('/all', notificationController.updateAllNotifications);
+
 module.exports = router;
