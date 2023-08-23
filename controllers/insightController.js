@@ -75,20 +75,20 @@ exports.createInsight = catchAsync(async (req, res, next) => {
     return next(new AppError('No such User Found', 404));
   }
 
-  if (
-    !user ||
-    !title ||
-    !minParticipants ||
-    !maxParticipants ||
-    !expirationDate ||
-    !participantPercentage ||
-    !discount ||
-    !maxPurchaseValue ||
-    !deadline ||
-    !surveyQuestions
-  ) {
-    return next(new AppError('Please fill all the fields', 404));
-  }
+  // if (
+  //   !user ||
+  //   !title ||
+  //   !minParticipants ||
+  //   !maxParticipants ||
+  //   !expirationDate ||
+  //   !participantPercentage ||
+  //   !discount ||
+  //   !maxPurchaseValue ||
+  //   !deadline ||
+  //   !surveyQuestions
+  // ) {
+  //   return next(new AppError('Please fill all the fields', 404));
+  // }
 
   //Comment this for postman Testing
 
@@ -108,6 +108,7 @@ exports.createInsight = catchAsync(async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.error(error);
     return next(new AppError(error, 500));
   }
 });

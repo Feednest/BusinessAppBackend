@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const insightSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
-    required: [true, 'Please tell us your name!'],
+    // required: [true, 'Please tell us your name!'],
     ref: 'User',
   },
   title: {
     type: String,
-    required: [true, 'Please provide a title'],
+    // required: [true, 'Please provide a title'],
   },
   description: {
     type: String,
@@ -34,31 +34,31 @@ const insightSchema = new mongoose.Schema({
   },
   minParticipants: {
     type: Number,
-    required: [true, 'Please provide a min number of participants'],
+    // required: [true, 'Please provide a min number of participants'],
   },
   maxParticipants: {
     type: Number,
-    required: [true, 'Please provide a max number of participants'],
+    // required: [true, 'Please provide a max number of participants'],
   },
   expirationDate: {
     type: Date,
-    required: [true, 'Please provide an expiration date'],
+    // required: [true, 'Please provide an expiration date'],
   },
   participantPercentage: {
     type: Number,
-    required: [true, 'Please provide a participant percentage'],
+    // required: [true, 'Please provide a participant percentage'],
   },
   discount: {
     type: Number,
-    required: [true, 'Please provide a discount'],
+    // required: [true, 'Please provide a discount'],
   },
   maxPurchaseValue: {
     type: Number,
-    required: [true, 'Please provide a max purchase value'],
+    // required: [true, 'Please provide a max purchase value'],
   },
   deadline: {
     type: Date,
-    required: [true, 'Please provide a deadline'],
+    // required: [true, 'Please provide a deadline'],
   },
   status: {
     type: String,
