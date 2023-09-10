@@ -68,6 +68,8 @@ exports.createInsight = catchAsync(async (req, res, next) => {
     surveyQuestions,
   } = req.body;
 
+  console.log(req.body);
+
   // 1) Get the user
   const newUser = await User.findById({ _id: req?.body?.user });
 

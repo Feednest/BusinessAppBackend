@@ -13,6 +13,9 @@ const insightSchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  terms: {
+    type: String,
+  },
   images: {
     type: [String],
   },
