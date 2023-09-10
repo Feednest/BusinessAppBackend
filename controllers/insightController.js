@@ -159,6 +159,35 @@ exports.getAllInsights = catchAsync(async (req, res, next) => {
   });
 });
 
+//Get specific user's insights
+exports.getMyInsights = catchAsync(async (req, res, next) => {
+  try {
+    const userID = req?.params?.id;
+
+    const insights = await Insight.find({
+      'surveyResponses.userID': mongoose.Types.ObjectId(userID),
+    });
+
+    console.log(insights);
+
+    const userResponses = insights.map((insight) => {
+      const responses = insight.surveyResponses.find(
+        (response) => response.userID.toString() === userID
+      );
+      return {
+        // insightId: insight._id,
+        insight: insight,
+        responses: responses ? responses.response : [],
+      };
+    });
+
+    res.json(userResponses);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 exports.updateInsight = factory.updateOne(Insight);
 
 exports.addResponse = catchAsync(async (req, res, next) => {
