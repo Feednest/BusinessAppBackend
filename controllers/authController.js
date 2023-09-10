@@ -181,7 +181,7 @@ exports.login = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email }).select('+password');
 
   if (user == null) {
-    return next(new AppError('No Such User Exist', 400));
+    return next(new AppError('Invalid Username or Password', 400));
   }
 
   console.log(user.socialAccount, 'social account');
@@ -395,7 +395,7 @@ exports.renderPug = catchAsync(async (req, res, next) => {
 exports.verifyOTP = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req?.body?.email });
   if (!user) {
-    return next(new AppError('No such User Found', 404));
+    return next(new AppError('Invalid Username or Password', 404));
   }
 
   if (!req?.body?.type)

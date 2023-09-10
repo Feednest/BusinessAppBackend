@@ -17,6 +17,9 @@ router
 
 router.patch('/:id', insightController.updateInsight);
 
+//get user's insight responses
+router.get('/:id', insightController.getMyInsights);
+
 router.post('/addResponse', insightController.addResponse);
 
 module.exports = router;
