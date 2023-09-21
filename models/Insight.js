@@ -37,6 +37,7 @@ const insightSchema = new mongoose.Schema({
   },
   minParticipants: {
     type: Number,
+    defaultValue: 0,
     // required: [true, 'Please provide a min number of participants'],
   },
   maxParticipants: {

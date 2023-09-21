@@ -26,11 +26,9 @@ exports.default = cron.schedule('0 0 * * *', async () => {
     expirationDate: { $lt: currentDate },
   });
 
-
-  
   for (const insight of expiredInsights) {
     if (
-      insight.submissions >= insight.minParticipants &&
+      insight.submissions === insight.maxParticipants &&
       insight.status === 'active'
     ) {
       try {
@@ -40,8 +38,11 @@ exports.default = cron.schedule('0 0 * * *', async () => {
 
         let notification;
 
-        if(insight.participantPercentage !== 100) {
-          const selectedRewards = selectRewardsRandomly(rewards, insight.participantPercentage);
+        if (insight.participantPercentage !== 100) {
+          const selectedRewards = selectRewardsRandomly(
+            rewards,
+            insight.participantPercentage
+          );
           rewards = selectedRewards;
         }
 
@@ -98,7 +99,11 @@ exports.default = cron.schedule('0 0 * * *', async () => {
         console.log(err);
       }
     }
-    else if(insight.submissions < insight.minParticipants && insight.status === 'active'){
+    //TODO: ASK ABOUT THIS CHECK IF IT IS NEEDED
+    else if (
+      insight.submissions < insight.maxParticipants &&
+      insight.status === 'active'
+    ) {
       insight.status = 'completed';
       await insight.save();
     }

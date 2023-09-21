@@ -75,6 +75,9 @@ exports.createInsight = catchAsync(async (req, res, next) => {
     return next(new AppError('No such User Found', 404));
   }
 
+  // console.log(expirationDate);
+  // console.log(deadline);
+
   // if (
   //   !user ||
   //   !title ||
