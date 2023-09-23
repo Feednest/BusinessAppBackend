@@ -100,13 +100,13 @@ exports.default = cron.schedule('0 0 * * *', async () => {
       }
     }
     //TODO: ASK ABOUT THIS CHECK IF IT IS NEEDED
-    else if (
-      insight.submissions < insight.maxParticipants &&
-      insight.status === 'active'
-    ) {
-      insight.status = 'completed';
-      await insight.save();
-    }
+    // else if (
+    //   insight.submissions < insight.maxParticipants &&
+    //   insight.status === 'active'
+    // ) {
+    //   insight.status = 'completed';
+    //   await insight.save();
+    // }
   }
   console.log('Insights updated');
 });
