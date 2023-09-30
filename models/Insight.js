@@ -90,6 +90,10 @@ const insightSchema = new mongoose.Schema({
       },
     },
   ],
+  rewardExpiry: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Insight = mongoose.model('Insight', insightSchema);

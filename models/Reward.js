@@ -20,6 +20,10 @@ const rewardSchema = new mongoose.Schema({
   image: {
     type: String,
   },
+  expireAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const Reward = mongoose.model('Reward', rewardSchema);

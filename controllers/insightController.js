@@ -250,9 +250,15 @@ exports.addResponse = catchAsync(async (req, res, next) => {
 
   const updatedInsight = await insight.save();
 
+  const expireAt = new Date();
+
+  expireAt.setDate(new Date().getDate() + updatedInsight?.rewardExpiry);
+
   const reward = new Reward({
     user: newUser._id,
     survey: insight._id,
+    expireAt: expireAt,
+    available: true,
   });
 
   const filename = `reward-${req?.user?._id}-${Date.now()}.png`;
@@ -271,7 +277,7 @@ exports.addResponse = catchAsync(async (req, res, next) => {
 
   reward.image = filename;
 
-  await reward.save();
+  const savedReward = await reward.save();
 
   const notification = await Notification.findOne({
     user: insight?.user.valueOf(),
@@ -292,6 +298,27 @@ exports.addResponse = catchAsync(async (req, res, next) => {
       image: null,
       data: 'test',
       navigate: 'Stats',
+      id: mongoose.Types.ObjectId().valueOf(),
+    }),
+  });
+
+  const rewardNotif = await Notification.findOne({
+    user: newUser._id,
+  });
+
+  await fetch(`${process.env.URL}api/v1/notification/send`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      title: `Your Reward for ${insight?.title} is ready`,
+      body: 'Click here to view reward',
+      user: savedReward?.user,
+      tokenID: rewardNotif?.tokenID,
+      image: null,
+      data: 'test',
+      navigate: 'Rewards',
       id: mongoose.Types.ObjectId().valueOf(),
     }),
   });
