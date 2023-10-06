@@ -69,6 +69,10 @@ exports.verifyReward = catchAsync(async (req, res, next) => {
       return next(new AppError('No such Reward Found', 404));
     }
 
+    if (new Date(reward?.expireAt) < new Date()) {
+      return next(new AppError('Reward Expired', 400));
+    }
+
     if (reward?.claimed == true) {
       return next(new AppError('Reward already claimed', 400));
     }
