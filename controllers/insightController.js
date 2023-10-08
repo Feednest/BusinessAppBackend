@@ -169,15 +169,21 @@ exports.getAllInsights = catchAsync(async (req, res, next) => {
     ) {
       filteredResponses.push(response);
     }
-    if (response.gender.length > 0 && response.minAge && response.maxAge) {
-      if (
-        response.gender.includes(gender) &&
-        response?.minAge <= minAge &&
-        response?.maxAge >= maxAge
-      ) {
-        filteredResponses.push(response);
-      }
-    } else if (response.gender.length > 0 && response.minAge) {
+    // if (response.gender.length > 0 && response.minAge && response.maxAge) {
+    //   if (
+    //     response.gender.includes(gender) &&
+    //     response?.minAge <= minAge &&
+    //     response?.maxAge >= maxAge
+    //   ) {
+    //     filteredResponses.push(response);
+    //   }
+    // }
+    if (
+      doc.find((insight) => insight._id.toString() === response._id.toString())
+    ) {
+      return;
+    }
+    if (response.gender.length > 0 && response.minAge) {
       if (response.gender.includes(gender) && response?.minAge <= minAge) {
         filteredResponses.push(response);
       }
@@ -192,17 +198,15 @@ exports.getAllInsights = catchAsync(async (req, res, next) => {
     } else if (response.minAge) {
       if (response.minAge <= minAge) {
         filteredResponses.push(response);
-      } else if (response.maxAge) {
-        if (response.maxAge >= maxAge) {
-          filteredResponses.push(response);
-        }
+      }
+    } else if (response.maxAge) {
+      if (response.maxAge >= maxAge) {
+        filteredResponses.push(response);
       }
     }
   });
 
   const updatedDoc = doc.concat(filteredResponses);
-
-  // console.log(updatedDoc);
 
   res.status(200).json({
     status: 'success',
