@@ -90,6 +90,9 @@ exports.signup = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req?.body?.email });
 
   if (user) {
+    if (user?.role !== role) {
+      return next(new AppError('This email is already taken', 501));
+    }
     if (user?.emailVerified == false && user.phoneNoVerified == false) {
       return next(new AppError('Please Verify Your Email Or Phone', 401));
     } else return next(new AppError('User Already Exists', 501));
@@ -139,6 +142,9 @@ exports.customerSignup = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req?.body?.email });
 
   if (user) {
+    if (user?.role !== role) {
+      return next(new AppError('This email is already taken', 501));
+    }
     if (user?.emailVerified == false && user.phoneNoVerified == false) {
       return next(new AppError('Please Verify Your Email Or Phone', 401));
     } else return next(new AppError('User Already Exists', 501));

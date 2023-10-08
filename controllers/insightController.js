@@ -134,7 +134,15 @@ exports.getAllInsights = catchAsync(async (req, res, next) => {
 
   const append = req?.query?.append;
 
-  const allInsights = await Insight.find({});
+  console.log(req.query);
+
+  const minAge = req?.query?.minAge?.lte;
+  const maxAge = req?.query?.maxAge?.gte;
+  const gender = req?.query?.gender;
+
+  let allInsights;
+
+  allInsights = await Insight.find({});
 
   const features = new APIFeatures(Insight.find(filter), req.query)
     .filter()
@@ -147,12 +155,48 @@ exports.getAllInsights = catchAsync(async (req, res, next) => {
   const filteredResponses = [];
 
   allInsights.forEach((response) => {
-    if (response.gender.length === 0 && !isDuplicate(response._id, doc)) {
+    if (
+      response.gender.length === 0 &&
+      !response.minAge &&
+      !response.maxAge &&
+      !isDuplicate(response._id, doc)
+    ) {
       filteredResponses.push(response);
+    }
+    if (response.gender.length > 0 && response.minAge && response.maxAge) {
+      if (
+        response.gender.includes(gender) &&
+        response?.minAge <= minAge &&
+        response?.maxAge >= maxAge
+      ) {
+        filteredResponses.push(response);
+      }
+    } else if (response.gender.length > 0 && response.minAge) {
+      if (response.gender.includes(gender) && response?.minAge <= minAge) {
+        filteredResponses.push(response);
+      }
+    } else if (response.gender.length > 0) {
+      if (response.gender.includes(gender)) {
+        filteredResponses.push(response);
+      }
+    } else if (response.minAge && response.maxAge) {
+      if (response.minAge <= minAge && response.maxAge >= maxAge) {
+        filteredResponses.push(response);
+      }
+    } else if (response.minAge) {
+      if (response.minAge <= minAge) {
+        filteredResponses.push(response);
+      } else if (response.maxAge) {
+        if (response.maxAge >= maxAge) {
+          filteredResponses.push(response);
+        }
+      }
     }
   });
 
   const updatedDoc = doc.concat(filteredResponses);
+
+  // console.log(updatedDoc);
 
   res.status(200).json({
     status: 'success',
