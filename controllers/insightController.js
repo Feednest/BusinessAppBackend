@@ -103,8 +103,14 @@ exports.createInsight = catchAsync(async (req, res, next) => {
     JSON.parse(req.body.deadline),
   ];
 
+  let genders = req.body?.gender;
+
+  if (req.body?.gender?.includes(',')) {
+    genders = req.body?.gender?.split(',');
+  }
+
   try {
-    const insight = await Insight.create(req.body);
+    const insight = await Insight.create({ ...req.body, gender: genders });
 
     res.status(200).json({
       status: 'success',
