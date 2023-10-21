@@ -339,6 +339,15 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('There is no user with email address.', 404));
   }
 
+  if (user.socialAccount) {
+    return next(
+      new AppError(
+        `It seems you signed up with ${user.socialAccount} so you cannot reset password`,
+        400
+      )
+    );
+  }
+
   // 2) Generate the random reset token
   const resetToken = user.createPasswordResetToken();
 
