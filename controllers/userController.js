@@ -123,6 +123,37 @@ exports.createUser = (req, res) => {
   });
 };
 
+exports.updatePin = catchAsync(async (req, res) => {
+  const { pin } = req.body;
+
+  if (pin.length !== 4) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Pin must be 4 digits',
+    });
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      $set: {
+        pin,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: updatedUser,
+    },
+    message: 'Pin updated successfully',
+  });
+});
+
 exports.getUser = factory.getOne(User);
 exports.getAllUsers = factory.getAll(User);
 

@@ -106,6 +106,10 @@ const userSchema = new mongoose.Schema({
   sex: {
     type: String,
   },
+  pin: {
+    type: String,
+    length: 4,
+  },
 });
 
 userSchema.pre('save', async function (next) {

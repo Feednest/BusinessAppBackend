@@ -20,6 +20,10 @@ const rewardSchema = new mongoose.Schema({
   image: {
     type: String,
   },
+  confirmationCode: {
+    type: String,
+    length: 6,
+  },
   expireAt: {
     type: Date,
     default: Date.now,

@@ -28,6 +28,7 @@ router.get('/renderPug/:token', authController.renderPug);
 // Protect all routes after this middleware
 router.use(authController.protect);
 
+router.patch('/pin', userController.updatePin);
 router.patch('/updateMyPassword', authController.updatePassword);
 router.get('/me', userController.getMe, userController.getUser);
 router.patch(

@@ -8,6 +8,7 @@ router.use(authController.protect);
 
 router.get('/', rewardController.getAllRewards);
 
+router.post('/verify/pin', rewardController.verifyRewardWithPin);
 router.post(
   '/verifyReward',
   rewardController.uploadRewardPhoto,
