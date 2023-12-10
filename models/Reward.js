@@ -30,6 +30,15 @@ const rewardSchema = new mongoose.Schema({
   },
 });
 
+//pre find populate survey field
+rewardSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'survey',
+    select: '-__v',
+  });
+  next();
+});
+
 const Reward = mongoose.model('Reward', rewardSchema);
 
 module.exports = Reward;
