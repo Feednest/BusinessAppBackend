@@ -149,9 +149,31 @@ exports.verifyRewardWithPin = catchAsync(async (req, res, next) => {
     return next(new AppError('Reward Not Avaliable yet', 400));
   }
 
-  if (reward.survey.user.pin !== pin) {
-    return next(new AppError('Invalid Pin', 400));
+  // if (reward.survey.user.pin !== pin) {
+  //   return next(new AppError('Invalid Pin', 400));
+  // }
+  // if (reward.survey.user) {
+  //   if (reward.survey.user.pin !== pin) {
+  //     return next(new AppError('Invalid Pin', 400));
+  //   }
+  // } else {
+  //   await User.findById(reward.survey.user._id, (err, user) => {
+  //     if (err) {
+  //       return next(new AppError('Invalid Pin', 400));
+  //     }
+  //   });
+  // }
+
+  if (reward.survey.user) {
+    const user = await User.findById(reward.survey.user._id);
+
+    if (user.pin !== pin) {
+      return next(new AppError('Invalid Pin', 400));
+    }
+  } else {
+    return next(new AppError('Invalid User', 400));
   }
+
   //6-digit confirmation code
   const confirmationCode = crypto.randomInt(100000, 999999);
 
