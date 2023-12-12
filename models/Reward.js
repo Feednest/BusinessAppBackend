@@ -28,6 +28,10 @@ const rewardSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  redeemingDate: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 //pre find populate survey field

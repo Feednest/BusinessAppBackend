@@ -86,6 +86,7 @@ exports.verifyReward = catchAsync(async (req, res, next) => {
     reward.claimed = true;
     reward.available = false;
     reward.confirmationCode = confirmationCode;
+    reward.redeemingDate = new Date();
 
     const notification = await Notification.findOne({
       user: values[1],
@@ -158,6 +159,7 @@ exports.verifyRewardWithPin = catchAsync(async (req, res, next) => {
   reward.claimed = true;
   reward.available = false;
   reward.confirmationCode = confirmationCode;
+  reward.redeemingDate = new Date();
 
   const notification = await Notification.findOne({
     user: userId,
