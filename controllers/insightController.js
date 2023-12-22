@@ -160,49 +160,64 @@ exports.getAllInsights = catchAsync(async (req, res, next) => {
 
   const filteredResponses = [];
 
+  // allInsights.forEach((response) => {
+  //   if (
+  //     response.gender.length === 0 &&
+  //     !response.minAge &&
+  //     !response.maxAge &&
+  //     !isDuplicate(response._id, doc)
+  //   ) {
+  //     filteredResponses.push(response);
+  //   }
+  //   // if (response.gender.length > 0 && response.minAge && response.maxAge) {
+  //   //   if (
+  //   //     response.gender.includes(gender) &&
+  //   //     response?.minAge <= minAge &&
+  //   //     response?.maxAge >= maxAge
+  //   //   ) {
+  //   //     filteredResponses.push(response);
+  //   //   }
+  //   // }
+  //   if (
+  //     doc.find((insight) => insight._id.toString() === response._id.toString())
+  //   ) {
+  //     return;
+  //   }
+  //   if (response.gender.length > 0 && response.minAge) {
+  //     if (response.gender.includes(gender) && response?.minAge <= minAge) {
+  //       filteredResponses.push(response);
+  //     }
+  //   } else if (response.gender.length > 0) {
+  //     if (response.gender.includes(gender)) {
+  //       filteredResponses.push(response);
+  //     }
+  //   } else if (response.minAge && response.maxAge) {
+  //     if (response.minAge <= minAge && response.maxAge >= maxAge) {
+  //       filteredResponses.push(response);
+  //     }
+  //   } else if (response.minAge) {
+  //     if (response.minAge <= minAge) {
+  //       filteredResponses.push(response);
+  //     }
+  //   } else if (response.maxAge) {
+  //     if (response.maxAge >= maxAge) {
+  //       filteredResponses.push(response);
+  //     }
+  //   }
+  // });
+
   allInsights.forEach((response) => {
-    if (
-      response.gender.length === 0 &&
-      !response.minAge &&
-      !response.maxAge &&
-      !isDuplicate(response._id, doc)
-    ) {
-      filteredResponses.push(response);
-    }
-    // if (response.gender.length > 0 && response.minAge && response.maxAge) {
-    //   if (
-    //     response.gender.includes(gender) &&
-    //     response?.minAge <= minAge &&
-    //     response?.maxAge >= maxAge
-    //   ) {
-    //     filteredResponses.push(response);
-    //   }
-    // }
-    if (
-      doc.find((insight) => insight._id.toString() === response._id.toString())
-    ) {
+    if (isDuplicate(response._id, doc)) {
       return;
     }
-    if (response.gender.length > 0 && response.minAge) {
-      if (response.gender.includes(gender) && response?.minAge <= minAge) {
-        filteredResponses.push(response);
-      }
-    } else if (response.gender.length > 0) {
-      if (response.gender.includes(gender)) {
-        filteredResponses.push(response);
-      }
-    } else if (response.minAge && response.maxAge) {
-      if (response.minAge <= minAge && response.maxAge >= maxAge) {
-        filteredResponses.push(response);
-      }
-    } else if (response.minAge) {
-      if (response.minAge <= minAge) {
-        filteredResponses.push(response);
-      }
-    } else if (response.maxAge) {
-      if (response.maxAge >= maxAge) {
-        filteredResponses.push(response);
-      }
+
+    const meetsGenderCriteria =
+      response.gender.length === 0 || response.gender.includes(gender);
+    const meetsMinAgeCriteria = !response.minAge || response.minAge <= minAge;
+    const meetsMaxAgeCriteria = !response.maxAge || response.maxAge >= maxAge;
+
+    if (meetsGenderCriteria && meetsMinAgeCriteria && meetsMaxAgeCriteria) {
+      filteredResponses.push(response);
     }
   });
 
