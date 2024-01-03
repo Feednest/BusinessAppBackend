@@ -408,6 +408,7 @@ exports.renderPug = catchAsync(async (req, res, next) => {
 });
 
 exports.verifyOTP = catchAsync(async (req, res, next) => {
+  console.log('req, body', req?.body);
   const user = await User.findOne({ email: req?.body?.email });
   if (!user) {
     return next(new AppError('Invalid Username or Password', 404));
@@ -431,12 +432,17 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
     if (req?.body?.type === 'email') {
       await new Email(user, ' ', token).sendVerifyOTP();
     } else {
-      // const phone = await client.messages.create({
-      //   body: `Hi from Haris as a Test Server!Your OTP token is ${token}`,
-      //   from: '+16283333372',
-      //   to: '+923322332243',
-      // });
-      // console.log(phone.sid);
+      console.log('phone numbmer', req?.body?.phone);
+      const phone = await client.messages
+        .create({
+          body: `Hi from Hashaam as a Test Server!Your OTP token is ${token}`,
+          // from: '+16283333372',
+          from: '+16463928580',
+          to: '+923322332243',
+          // to: `+92${req?.body?.phone}`,
+        })
+        .then((message) => console.log('message::', message));
+      console.log('phone', phone);
       console.log(token);
     }
     console.log(token);
@@ -449,6 +455,8 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
     user.OTP = undefined;
     user.OTPExpires = undefined;
     await user.save({ validateBeforeSave: false });
+
+    console.log('errororor:::', err);
 
     return next(
       new AppError('There was an error sending the token. Try again later!'),
