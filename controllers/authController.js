@@ -435,7 +435,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
       console.log('phone numbmer', req?.body?.phone);
       const phone = await client.messages
         .create({
-          body: `Hi from Hashaam as a Test Server!Your OTP token is ${token}`,
+          body: `Hi from Haris as a Test Server!Your OTP token is ${token}`,
           // from: '+16283333372',
           from: '+16463928580',
           to: '+923322332243',
